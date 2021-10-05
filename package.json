@@ -1,0 +1,10 @@
+{
+  "name": "survaq-shopify-partial",
+  "version": "0.1.0",
+  "author": "Aiji Uejima <aiji42@gmil.com>",
+  "license": "MIT",
+  "private": true,
+  "devDependencies": {
+    "typescript": "^4.4.3"
+  }
+}
