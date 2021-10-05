@@ -4,6 +4,9 @@
   "author": "Aiji Uejima <aiji42@gmil.com>",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "build": "tsc"
+  },
   "devDependencies": {
     "@types/node": "^16.10.2",
     "typescript": "^4.4.3"
