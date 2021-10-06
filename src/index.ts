@@ -34,59 +34,152 @@ const createDeliveryScheduleProperty = async (
 const createSKUSelects = async (
   productId: string,
   variantId: string,
-  title: string,
   target: HTMLElement
 ): Promise<HTMLSelectElement[]> => {
   const data = await fetchData(productId)
   const variant = data.variants.find(({ variantId: v }) => v === variantId)
-  if (!variant || data.skus.length < 2) return []
-  const selects = Array(variant.itemCount)
-    .fill(0)
-    .map((_, index) => {
-      const p = document.createElement('p')
-      p.innerHTML = `<label>${title}（${index + 1}つ目）</label>`
-      const select = document.createElement('select')
-      select.innerHTML = data.skus
-        .map((sku) => `<option value="${sku.skuCode}">${sku.skuName}</option>`)
-        .join('')
-      p.appendChild(select)
+  if (!variant) return []
+  const selects =
+    data.skus.length < 2
+      ? []
+      : Array(variant.itemCount)
+          .fill(0)
+          .map((_, index) => {
+            const p = document.createElement('p')
+            p.classList.add('product-form__item')
+            const label = data.skuLabel
+              ? data.skuLabel?.replace(/#/g, String(index + 1))
+              : null
+            if (label) p.innerHTML = `<label>${label}</label>`
+            const select = document.createElement('select')
+            select.classList.add('product-form__input')
+            select.name = `properties[${label ?? `selected_sku_${index + 1}`}]`
+            select.innerHTML = data.skus
+              .map(
+                (sku) =>
+                  `<option value="${sku.skuName}">${sku.skuName}</option>`
+              )
+              .join('')
+            p.appendChild(select)
 
-      target.appendChild(p)
+            target.appendChild(p)
 
-      return select
-    })
+            return select
+          })
 
-  const input = document.createElement('input')
-  input.type = 'hidden'
-  input.name = 'properties[sku_quantity]'
-
-  target.appendChild(input)
-  // TODO: default value of input
-  // TODO: readabel value for user
-
-  const skus: Record<number, { sku: string; quantity: number }> = {}
+  const skuQuantityInput = document.createElement('input')
+  skuQuantityInput.type = 'hidden'
+  skuQuantityInput.name = 'properties[sku_quantity]'
+  skuQuantityInput.value = JSON.stringify([
+    { sku: data.skus[0].skuCode, quantity: variant.itemCount }
+  ])
+  target.appendChild(skuQuantityInput)
 
   selects.forEach((select, index) => {
-    select.addEventListener('change', ({ target }) => {
-      if (!(target instanceof HTMLSelectElement)) return
-
-      skus[index] = { sku: target.value, quantity: 1 }
-      input.value = JSON.stringify(Object.values(skus))
+    select.addEventListener('change', () => {
+      const codesByName = data.skus.reduce<Record<string, string>>(
+        (res, { skuName, skuCode }) => ({ ...res, [skuName]: skuCode }),
+        {}
+      )
+      skuQuantityInput.value = JSON.stringify(
+        selects.map((s) => ({
+          sku: codesByName[s.value] ?? 'unknown',
+          quantity: 1
+        }))
+      )
     })
   })
 
   return selects
 }
 
-const propertiesTarget = document.getElementById('additionalProperties')
-if (propertiesTarget)
-  createDeliveryScheduleProperty('6580009205965', propertiesTarget)
+const createFundingPriceContents = async (
+  productId: string,
+  target: HTMLDivElement | HTMLParagraphElement | HTMLSpanElement
+) => {
+  const data = await fetchData(productId)
+  target.innerHTML =
+    data.foundation.totalPrice?.toLocaleString('JP', {
+      style: 'currency',
+      currency: 'JPY'
+    }) ?? '-'
+}
 
-const selectsTarget = document.getElementById('variationSelectors')
-if (selectsTarget)
-  createSKUSelects(
-    '6580009205965',
-    '39457079001293',
-    'カラー×サイズ',
-    selectsTarget
+const createFundingSupportersContents = async (
+  productId: string,
+  target: HTMLDivElement | HTMLParagraphElement | HTMLSpanElement
+) => {
+  const data = await fetchData(productId)
+  target.innerHTML = `${data.foundation.supporter?.toLocaleString() ?? '- '}人`
+}
+
+const createFundingStatusContents = async (
+  productId: string,
+  target: HTMLDivElement | HTMLParagraphElement | HTMLSpanElement
+) => {
+  const data = await fetchData(productId)
+  const remainDays = Math.ceil(
+    (new Date(data.foundation.closeOn).getTime() - new Date().getTime()) /
+      86400000
   )
+
+  target.innerHTML =
+    remainDays === 0 ? '最終日' : remainDays < 0 ? '販売中' : `${remainDays}日`
+}
+
+const replaceDeliveryScheduleInContent = async (
+  productId: string,
+  target: HTMLDivElement | HTMLParagraphElement | HTMLSpanElement
+) => {
+  const data = await fetchData(productId)
+  target.innerText = data.rule.schedule.text
+}
+
+const productId: string = (window as any).ShopifyAnalytics.meta.product.id
+const [, variantId] = document.location.search.match(/variant=(\d+)/) ?? []
+
+let currentValiantId: string =
+  variantId ?? (window as any).ShopifyAnalytics.meta.selectedVariantId
+
+fetchData(productId).then(() => {
+  const propertiesTarget = document.getElementById('additionalProperties')
+  if (propertiesTarget)
+    createDeliveryScheduleProperty(productId, propertiesTarget)
+
+  const selectsTarget = document.getElementById('variationSelectors')
+  if (selectsTarget) {
+    createSKUSelects(productId, currentValiantId, selectsTarget)
+
+    document.addEventListener(
+      'change',
+      () => {
+        if (
+          currentValiantId ===
+          (window as any).ShopifyAnalytics.meta.selectedVariantId
+        )
+          return
+        currentValiantId = (window as any).ShopifyAnalytics.meta
+          .selectedVariantId
+        selectsTarget.innerHTML = ''
+        createSKUSelects(productId, currentValiantId, selectsTarget)
+      },
+      false
+    )
+  }
+
+  const fundingPriceTarget = document.getElementById('fundingsPrice')
+  if (fundingPriceTarget)
+    createFundingPriceContents(productId, fundingPriceTarget)
+  const fundingsSupportersTarget = document.getElementById('fundingsSupporters')
+  if (fundingsSupportersTarget)
+    createFundingSupportersContents(productId, fundingsSupportersTarget)
+  const fundingsStatusTarget = document.getElementById('fundingsRemainDays')
+  if (fundingsStatusTarget)
+    createFundingStatusContents(productId, fundingsStatusTarget)
+
+  Array.from(
+    document.querySelectorAll<HTMLSpanElement>('.delivery-schedule')
+  ).forEach((t) => {
+    replaceDeliveryScheduleInContent(productId, t)
+  })
+})

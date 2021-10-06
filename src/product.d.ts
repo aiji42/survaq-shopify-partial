@@ -44,6 +44,7 @@ export type Product = {
   productCode: string
   productName: string
   variants: Array<Variant>
+  skuLabel?: string
   skus: Array<SKU>
   foundation: Foundation
   rule: Rule
