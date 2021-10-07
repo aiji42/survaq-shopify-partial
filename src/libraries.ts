@@ -39,46 +39,42 @@ export const createSKUSelects = async (
   const data = await fetchData(productId)
   const variant = data.variants.find(({ variantId: v }) => v === variantId)
   if (!variant) return []
-  const selects =
-    data.skus.length < 2
-      ? []
-      : Array(variant.itemCount)
-          .fill(0)
-          .map((_, index) => {
-            const p = document.createElement('p')
-            p.classList.add('product-form__item')
-            const label = data.skuLabel
-              ? data.skuLabel?.replace(/#/g, String(index + 1))
-              : null
-            if (label) p.innerHTML = `<label>${label}</label>`
-            const select = document.createElement('select')
-            select.classList.add('product-form__input')
-            select.name = `properties[${label ?? `selected_sku_${index + 1}`}]`
-            select.innerHTML = data.skus
-              .map(
-                (sku) =>
-                  `<option value="${sku.skuName}">${sku.skuName}</option>`
-              )
-              .join('')
-            p.appendChild(select)
+  const selects = !variant.skuSelectable
+    ? []
+    : Array(variant.itemCount)
+        .fill(0)
+        .map((_, index) => {
+          const p = document.createElement('p')
+          p.classList.add('product-form__item')
+          const label = data.skuLabel
+            ? data.skuLabel?.replace(/#/g, String(index + 1))
+            : null
+          if (label) p.innerHTML = `<label>${label}</label>`
+          const select = document.createElement('select')
+          select.classList.add('product-form__input')
+          select.name = `properties[${label ?? `selected_sku_${index + 1}`}]`
+          select.innerHTML = variant.skus
+            .map((sku) => `<option value="${sku.name}">${sku.name}</option>`)
+            .join('')
+          p.appendChild(select)
 
-            target.appendChild(p)
+          target.appendChild(p)
 
-            return select
-          })
+          return select
+        })
 
   const skuQuantityInput = document.createElement('input')
   skuQuantityInput.type = 'hidden'
   skuQuantityInput.name = 'properties[sku_quantity]'
   skuQuantityInput.value = JSON.stringify([
-    { sku: data.skus[0].skuCode, quantity: variant.itemCount }
+    { sku: variant.skus[0].code, quantity: variant.itemCount }
   ])
   target.appendChild(skuQuantityInput)
 
   selects.forEach((select, index) => {
     select.addEventListener('change', () => {
-      const codesByName = data.skus.reduce<Record<string, string>>(
-        (res, { skuName, skuCode }) => ({ ...res, [skuName]: skuCode }),
+      const codesByName = variant.skus.reduce<Record<string, string>>(
+        (res, { name, code }) => ({ ...res, [name]: code }),
         {}
       )
       skuQuantityInput.value = JSON.stringify(
