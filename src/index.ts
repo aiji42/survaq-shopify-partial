@@ -8,11 +8,11 @@ import {
   replaceDeliveryScheduleInContent
 } from './libraries'
 
-const productId: string = (window as any).ShopifyAnalytics.meta.product.id
+const productId: string = window.ShopifyAnalytics.meta.product.id
 const [, variantId] = document.location.search.match(/variant=(\d+)/) ?? []
 
 let currentValiantId: string =
-  variantId ?? (window as any).ShopifyAnalytics.meta.selectedVariantId
+  variantId ?? window.ShopifyAnalytics.meta.selectedVariantId
 
 fetchData(productId).then(() => {
   const propertiesTarget = document.getElementById('additionalProperties')
