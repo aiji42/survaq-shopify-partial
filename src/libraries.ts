@@ -68,7 +68,7 @@ export const createSKUSelects = async (
 
   const skuInput = document.createElement('input')
   skuInput.type = 'hidden'
-  skuInput.name = 'properties[sku_quantity]'
+  skuInput.name = 'properties[skus]'
   skuInput.value =
     selects.length === 0
       ? JSON.stringify(variant.skus.map(({ code }) => code))
