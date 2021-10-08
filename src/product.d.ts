@@ -29,9 +29,8 @@ export type Variant = {
   fieldId: string
   variantId: string
   variantName: string
-  itemCount: number
   skus: { code: string; name: string; subName: string }[]
-  skuSelectable: boolean
+  skuSelectable: number
 }
 
 export type Product = {
