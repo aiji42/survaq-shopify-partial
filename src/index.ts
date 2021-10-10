@@ -46,20 +46,11 @@ const main = (productId: string, initValiantId: string) => {
     if (fundingsStatusTarget)
       createFundingStatusContents(productId, fundingsStatusTarget)
 
-    console.log('a', document.querySelectorAll('.delivery-schedule'))
     Array.from(
       document.querySelectorAll<HTMLSpanElement>('.delivery-schedule')
     ).forEach((t) => {
       replaceDeliveryScheduleInContent(productId, t)
     })
-    window.onload = () => {
-      console.log('b', document.querySelectorAll('.delivery-schedule'))
-      Array.from(
-        document.querySelectorAll<HTMLSpanElement>('.delivery-schedule')
-      ).forEach((t) => {
-        replaceDeliveryScheduleInContent(productId, t)
-      })
-    }
   })
 }
 

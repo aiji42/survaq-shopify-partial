@@ -125,6 +125,5 @@ export const replaceDeliveryScheduleInContent = async (
   target: HTMLDivElement | HTMLParagraphElement | HTMLSpanElement
 ) => {
   const data = await fetchData(productId)
-  console.log(data.rule.schedule.text)
   target.innerText = data.rule.schedule.text
 }
