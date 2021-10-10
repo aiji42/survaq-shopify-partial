@@ -7,4 +7,5 @@ interface Window {
       selectedVariantId: string
     }
   }
+  customScriptSurvaq: (pId: string, vId: string) => void
 }
