@@ -23,7 +23,7 @@ export const createDeliveryScheduleProperty = async (
   const div = document.createElement('div')
   const html = `
 <input name="properties[配送予定]" type="hidden" value="${data.rule.schedule.text}(${data.rule.schedule.subText})" />
-<input name="properties[delivery_schedule]" type="hidden" value="${data.rule.schedule.year}-${data.rule.schedule.month}-${data.rule.schedule.term}" />
+<input name="properties[_delivery_schedule]" type="hidden" value="${data.rule.schedule.year}-${data.rule.schedule.month}-${data.rule.schedule.term}" />
 `
   div.innerHTML = html
   target.appendChild(div)
@@ -68,7 +68,7 @@ export const createSKUSelects = async (
 
   const skuInput = document.createElement('input')
   skuInput.type = 'hidden'
-  skuInput.name = 'properties[skus]'
+  skuInput.name = 'properties[_skus]'
   skuInput.value =
     selects.length === 0
       ? JSON.stringify(variant.skus.map(({ code }) => code))
