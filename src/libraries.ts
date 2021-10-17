@@ -22,8 +22,14 @@ export const createDeliveryScheduleProperty = async (
   const data = await fetchData(productId)
   const div = document.createElement('div')
   const html = `
-<input name="properties[配送予定]" type="hidden" value="${data.rule.schedule.text}(${data.rule.schedule.subText})" />
-<input name="properties[_delivery_schedule]" type="hidden" value="${data.rule.schedule.year}-${data.rule.schedule.month}-${data.rule.schedule.term}" />
+<input name="properties[配送予定]" type="hidden" value="${
+    data.rule.schedule.text
+  }(${data.rule.schedule.subText})" />
+<input name="properties[_delivery_schedule]" type="hidden" value="${
+    data.rule.schedule.year
+  }-${String(data.rule.schedule.month).padStart(2, '0')}-${
+    data.rule.schedule.term
+  }" />
 `
   div.innerHTML = html
   target.appendChild(div)
