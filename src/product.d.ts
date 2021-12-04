@@ -11,6 +11,7 @@ type Schedule = {
   month: number
   term: 'early' | 'middle' | 'late'
   text: string
+  texts: string[]
   subText: string
 }
 

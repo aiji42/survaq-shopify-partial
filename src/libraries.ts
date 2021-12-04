@@ -131,5 +131,6 @@ export const replaceDeliveryScheduleInContent = async (
   target: HTMLDivElement | HTMLParagraphElement | HTMLSpanElement
 ) => {
   const data = await fetchData(productId)
-  target.innerText = data.rule.schedule.text
+  const index = Number(target.dataset.index ?? 0)
+  target.innerText = data.rule.schedule.texts[index]
 }
