@@ -132,5 +132,7 @@ export const replaceDeliveryScheduleInContent = async (
 ) => {
   const data = await fetchData(productId)
   const index = Number(target.dataset.index ?? 0)
-  target.innerText = data.rule.schedule.texts[index]
+  const short = !!target.dataset.short
+  target.innerText =
+    data.rule.schedule.texts[index]?.slice(short ? 5 : NaN) ?? ''
 }
