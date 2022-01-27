@@ -1,7 +1,7 @@
 import { Product } from './product'
 
 const apiEndpoint =
-  'https://xrm524o5j2.execute-api.us-east-1.amazonaws.com/production/v2/products/'
+  'https://woi9mqnmce.execute-api.ap-northeast-1.amazonaws.com/production/v2/products/'
 
 let cache: Record<string, Product> = {}
 
