@@ -92,40 +92,6 @@ export const createSKUSelects = async (
   return selects
 }
 
-export const createFundingPriceContents = async (
-  productId: string,
-  target: HTMLDivElement | HTMLParagraphElement | HTMLSpanElement
-) => {
-  const data = await fetchData(productId)
-  target.innerHTML =
-    data.foundation.totalPrice?.toLocaleString('JP', {
-      style: 'currency',
-      currency: 'JPY'
-    }) ?? '-'
-}
-
-export const createFundingSupportersContents = async (
-  productId: string,
-  target: HTMLDivElement | HTMLParagraphElement | HTMLSpanElement
-) => {
-  const data = await fetchData(productId)
-  target.innerHTML = `${data.foundation.supporter?.toLocaleString() ?? '- '}人`
-}
-
-export const createFundingStatusContents = async (
-  productId: string,
-  target: HTMLDivElement | HTMLParagraphElement | HTMLSpanElement
-) => {
-  const data = await fetchData(productId)
-  const remainDays = Math.ceil(
-    (new Date(data.foundation.closeOn).getTime() - new Date().getTime()) /
-      86400000
-  )
-
-  target.innerHTML =
-    remainDays === 0 ? '最終日' : remainDays < 0 ? '販売中' : `${remainDays}日`
-}
-
 export const replaceDeliveryScheduleInContent = async (
   productId: string,
   target: HTMLDivElement | HTMLParagraphElement | HTMLSpanElement

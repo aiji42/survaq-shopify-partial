@@ -1,8 +1,5 @@
 import {
   fetchData,
-  createFundingStatusContents,
-  createFundingSupportersContents,
-  createFundingPriceContents,
   createDeliveryScheduleProperty,
   createSKUSelects,
   replaceDeliveryScheduleInContent
@@ -34,17 +31,6 @@ const main = (productId: string, initValiantId: string) => {
         false
       )
     }
-
-    const fundingPriceTarget = document.getElementById('fundingsPrice')
-    if (fundingPriceTarget)
-      createFundingPriceContents(productId, fundingPriceTarget)
-    const fundingsSupportersTarget =
-      document.getElementById('fundingsSupporters')
-    if (fundingsSupportersTarget)
-      createFundingSupportersContents(productId, fundingsSupportersTarget)
-    const fundingsStatusTarget = document.getElementById('fundingsRemainDays')
-    if (fundingsStatusTarget)
-      createFundingStatusContents(productId, fundingsStatusTarget)
 
     Array.from(
       document.querySelectorAll<HTMLSpanElement>('.delivery-schedule')
