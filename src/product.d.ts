@@ -1,6 +1,5 @@
 export type Foundation = {
   fieldId: string
-  objectivePrice: number
   totalPrice: number
   closeOn: string
   supporter: number
@@ -18,7 +17,6 @@ type Schedule = {
 export type Rule = {
   fieldId: string
   leadDays: number
-  bulkPurchase: number
   cyclePurchase: {
     value: 'monthly' | 'triple'
     label: string
