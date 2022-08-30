@@ -36,7 +36,7 @@ export type Product = {
   id: string
   productCode: string
   productName: string
-  variants: Array<Variant>
+  variants?: Array<Variant>
   skuLabel?: string
   foundation: Foundation
   rule: Rule

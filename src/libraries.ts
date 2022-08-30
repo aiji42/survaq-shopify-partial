@@ -42,7 +42,7 @@ export const createSKUSelects = async (
   target: HTMLElement
 ): Promise<HTMLSelectElement[]> => {
   const data = await fetchData(productId)
-  const variant = data.variants.find(({ variantId: v }) => v === variantId)
+  const variant = data.variants?.find(({ variantId: v }) => v === variantId)
   if (!variant) return []
   const codesByName = variant.skus.reduce<Record<string, string>>(
     (res, { name, code }) => ({ ...res, [name]: code }),
