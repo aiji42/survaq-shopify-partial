@@ -16,11 +16,11 @@ type Schedule = {
 
 export type Rule = {
   fieldId: string
-  leadDays: number
-  cyclePurchase: {
-    value: 'monthly' | 'triple'
-    label: string
-  }
+  customSchedules: Array<{
+    beginOn: string;
+    endOn: string;
+    deliverySchedule: string;
+  }>;
   schedule: Schedule
 }
 

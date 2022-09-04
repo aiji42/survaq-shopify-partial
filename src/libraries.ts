@@ -1,6 +1,6 @@
 import { Product } from './product'
 
-const apiEndpoint = 'https://survaq-shopify-frontend.vercel.app/api/products/'
+const apiEndpoint = 'https://survaq-api-production.aiji422990.workers.dev/products/'
 
 let cache: Record<string, Product> = {}
 
