@@ -1,6 +1,6 @@
 import { Product } from './product'
 
-const apiEndpoint = 'https://survaq-shopify-frontend.vercel.app/api/products/'
+const apiEndpoint = 'https://survaq-api-production.aiji422990.workers.dev/products/'
 
 let cache: Record<string, Product> = {}
 
@@ -24,11 +24,6 @@ export const createDeliveryScheduleProperty = async (
 <input name="properties[配送予定]" type="hidden" value="${
     data.rule.schedule.text
   }(${data.rule.schedule.subText})" />
-<input name="properties[_delivery_schedule]" type="hidden" value="${
-    data.rule.schedule.year
-  }-${String(data.rule.schedule.month).padStart(2, '0')}-${
-    data.rule.schedule.term
-  }" />
 `
   div.innerHTML = html
   target.appendChild(div)
@@ -44,12 +39,8 @@ export const createSKUSelects = async (
   const data = await fetchData(productId)
   const variant = data.variants?.find(({ variantId: v }) => v === variantId)
   if (!variant) return []
-  const codesByName = variant.skus.reduce<Record<string, string>>(
-    (res, { name, code }) => ({ ...res, [name]: code }),
-    {}
-  )
 
-  const selects = Array(variant.skuSelectable)
+  return Array(variant.skuSelectable)
     .fill(0)
     .map((_, index) => {
       const p = document.createElement('p')
@@ -70,25 +61,6 @@ export const createSKUSelects = async (
 
       return select
     })
-
-  const skuInput = document.createElement('input')
-  skuInput.type = 'hidden'
-  skuInput.name = 'properties[_skus]'
-  skuInput.value =
-    selects.length === 0
-      ? JSON.stringify(variant.skus.map(({ code }) => code))
-      : JSON.stringify(selects.map((s) => codesByName[s.value] ?? 'unknown'))
-  target.appendChild(skuInput)
-
-  selects.forEach((select) => {
-    select.addEventListener('change', () => {
-      skuInput.value = JSON.stringify(
-        selects.map((s) => codesByName[s.value] ?? 'unknown')
-      )
-    })
-  })
-
-  return selects
 }
 
 export const replaceDeliveryScheduleInContent = async (
