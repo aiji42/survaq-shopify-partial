@@ -1,14 +1,17 @@
 import { Product } from './product'
 
-const apiEndpoint = 'https://survaq-api-production.aiji422990.workers.dev/products/'
+const apiEndpoint =
+  'https://survaq-api-production.aiji422990.workers.dev/products/'
 
 let cache: Record<string, Product> = {}
 
+const lang = document.documentElement.lang ?? 'ja'
+
 export const fetchData = async (productId: string): Promise<Product> => {
   if (cache[productId]) return cache[productId]
-  const data: Product = await fetch(`${apiEndpoint}${productId}`).then((res) =>
-    res.json()
-  )
+  const data: Product = await fetch(`${apiEndpoint}${productId}`, {
+    headers: { 'accept-language': lang }
+  }).then((res) => res.json())
   cache[productId] = data
 
   return data
@@ -20,10 +23,9 @@ export const createDeliveryScheduleProperty = async (
 ): Promise<HTMLDivElement> => {
   const data = await fetchData(productId)
   const div = document.createElement('div')
+  const key = lang === 'en' ? 'Shipping' : '配送予定'
   const html = `
-<input name="properties[配送予定]" type="hidden" value="${
-    data.rule.schedule.text
-  }(${data.rule.schedule.subText})" />
+<input name="properties[${key}]" type="hidden" value="${data.rule.schedule.text}(${data.rule.schedule.subText})" />
 `
   div.innerHTML = html
   target.appendChild(div)
@@ -71,5 +73,5 @@ export const replaceDeliveryScheduleInContent = async (
   const index = Number(target.dataset.index ?? 0)
   const short = !!target.dataset.short
   target.innerText =
-    data.rule.schedule.texts[index]?.slice(short ? 5 : NaN) ?? ''
+    data.rule.schedule.texts[index]?.replace(/(\d{4}|年)/g, '') ?? ''
 }
