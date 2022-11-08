@@ -73,5 +73,7 @@ export const replaceDeliveryScheduleInContent = async (
   const index = Number(target.dataset.index ?? 0)
   const short = !!target.dataset.short
   target.innerText =
-    data.rule.schedule.texts[index]?.replace(/(\d{4}|年)/g, '') ?? ''
+    (short
+      ? data.rule.schedule.texts[index]?.replace(/(\d{4}|年)/g, '')
+      : data.rule.schedule.texts[index]) ?? ''
 }
