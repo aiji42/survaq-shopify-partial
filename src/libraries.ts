@@ -79,10 +79,10 @@ export const createSKUSelects = async (
       propertiesDelivery.value = `${schedule.text}(${schedule.subText})`
 
       if (data.rule.schedule.text !== schedule.text) {
-        messageArea.innerHTML = `ご選択いただいた商品の中に品薄のものが含まれております。<br />配送時期は${schedule.text.replace(
+        messageArea.innerHTML = `&quot;${schedule.text.replace(
           /(\d{4}|年)/g,
           ''
-        )}を予定しております。`
+        )}&quot;の商品が含まれております。<br />※2点以上ご注文の場合、全て揃った時点でまとめて発送`
       } else {
         messageArea.innerText = ''
       }
