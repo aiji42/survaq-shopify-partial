@@ -69,6 +69,7 @@ export const createSKUSelects = async (
       )
       const schedule = latest([
         data.rule.schedule,
+        variant.schedule,
         ...selectedSkus.map(({ schedule }) => schedule)
       ])
 
