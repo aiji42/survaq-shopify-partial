@@ -80,7 +80,7 @@ export const createSKUSelects = async (
       propertiesDelivery.value = `${schedule.text}(${schedule.subText})`
 
       if (data.rule.schedule.text !== schedule.text) {
-        messageArea.innerHTML = `&quot;${schedule.text.replace(
+        messageArea.innerHTML = `&quot;配送予定：${schedule.text.replace(
           /(\d{4}|年)/g,
           ''
         )}&quot;の商品が含まれております。<br />※2点以上ご注文の場合、全て揃った時点でまとめて発送`
