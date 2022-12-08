@@ -42,7 +42,7 @@ export const createSKUSelects = async (
   const variant = data.variants?.find(({ variantId: v }) => v === variantId)
   if (!variant) return []
   const messageArea = document.createElement('p')
-  messageArea.setAttribute('style', 'text-align:center;margin-top:4px;')
+  messageArea.classList.add('product-form__description-message')
 
   Array.from({ length: variant.skuSelectable }).forEach((_, index) => {
     const p = document.createElement('p')
