@@ -1,4 +1,4 @@
-import { Product, Variant } from './product'
+import { Product, Schedule, Variant } from './product'
 
 const apiEndpoint =
   'https://survaq-api-production.aiji422990.workers.dev/products/'
@@ -17,6 +17,8 @@ export const fetchData = async (productId: string): Promise<Product> => {
   return data
 }
 
+const propertiesDeliveryId = 'propertiesDelivery'
+
 export const createDeliveryScheduleProperty = async (
   productId: string,
   target: HTMLElement
@@ -25,7 +27,7 @@ export const createDeliveryScheduleProperty = async (
   const div = document.createElement('div')
   const key = lang === 'en' ? 'Shipping' : '配送予定'
   const html = `
-<input name="properties[${key}]" type="hidden" value="${data.rule.schedule.text}(${data.rule.schedule.subText})" id="propertiesDelivery" />
+<input name="properties[${key}]" type="hidden" value="${data.rule.schedule.text}(${data.rule.schedule.subText})" id="${propertiesDeliveryId}" />
 `
   div.innerHTML = html
   target.appendChild(div)
@@ -40,9 +42,38 @@ export const createSKUSelects = async (
 ) => {
   const data = await fetchData(productId)
   const variant = data.variants?.find(({ variantId: v }) => v === variantId)
-  if (!variant) return []
+  if (!variant) return
   const messageArea = document.createElement('p')
   messageArea.classList.add('product-form__description-message')
+  const skusClassName = 'skus'
+
+  const updateDeliverySchedule = () => {
+    const selects = Array.from(
+      document.querySelectorAll<HTMLInputElement>(`.${skusClassName}`)
+    )
+    const values = selects.map((el) => el.value)
+    const selectedSkus = variant.skus.filter((sku) => values.includes(sku.name))
+    const schedule = latest([
+      data.rule.schedule,
+      variant.schedule,
+      ...selectedSkus.map(({ schedule }) => schedule)
+    ])
+
+    const propertiesDelivery = document.querySelector<HTMLInputElement>(
+      `#${propertiesDeliveryId}`
+    )
+    if (!propertiesDelivery) throw new Error()
+    propertiesDelivery.value = `${schedule.text}(${schedule.subText})`
+
+    if (data.rule.schedule.text !== schedule.text) {
+      messageArea.innerHTML = `&quot;配送予定：${schedule.text.replace(
+        /(\d{4}|年)/g,
+        ''
+      )}&quot;の商品が含まれております。<br />※2点以上ご注文の場合、全て揃った時点でまとめて発送`
+    } else {
+      messageArea.innerText = ''
+    }
+  }
 
   Array.from({ length: variant.skuSelectable }).forEach((_, index) => {
     const p = document.createElement('p')
@@ -52,51 +83,21 @@ export const createSKUSelects = async (
       : null
     if (label) p.innerHTML = `<label>${label}</label>`
     const select = document.createElement('select')
-    select.classList.add('product-form__input', 'skus')
+    select.classList.add('product-form__input', skusClassName)
     select.name = `properties[${label ?? `商品${index + 1}`}]`
     select.innerHTML = variant.skus
       .map((sku) => `<option value="${sku.name}">${sku.name}</option>`)
       .join('')
     p.appendChild(select)
 
-    const updateDeliverySchedule = () => {
-      const selects = Array.from(
-        document.querySelectorAll<HTMLInputElement>('.skus')
-      )
-      const values = selects.map((el) => el.value)
-      const selectedSkus = variant.skus.filter((sku) =>
-        values.includes(sku.name)
-      )
-      const schedule = latest([
-        data.rule.schedule,
-        variant.schedule,
-        ...selectedSkus.map(({ schedule }) => schedule)
-      ])
-
-      const propertiesDelivery = document.querySelector<HTMLInputElement>(
-        '#propertiesDelivery'
-      )
-      if (!propertiesDelivery) throw new Error()
-      propertiesDelivery.value = `${schedule.text}(${schedule.subText})`
-
-      if (data.rule.schedule.text !== schedule.text) {
-        messageArea.innerHTML = `&quot;配送予定：${schedule.text.replace(
-          /(\d{4}|年)/g,
-          ''
-        )}&quot;の商品が含まれております。<br />※2点以上ご注文の場合、全て揃った時点でまとめて発送`
-      } else {
-        messageArea.innerText = ''
-      }
-    }
-
     select.addEventListener('change', updateDeliverySchedule)
-    updateDeliverySchedule()
 
     target.appendChild(p)
 
     return select
   })
 
+  updateDeliverySchedule()
   target.appendChild(messageArea)
 }
 
