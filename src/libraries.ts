@@ -1,4 +1,4 @@
-import { Product, Schedule, Variant } from './product'
+import type { Product, Variant } from './product'
 
 const apiEndpoint =
   'https://survaq-api-production.aiji422990.workers.dev/products/'
@@ -8,7 +8,8 @@ let cache: Record<string, Product> = {}
 const lang = document.documentElement.lang ?? 'ja'
 
 export const fetchData = async (productId: string): Promise<Product> => {
-  if (cache[productId]) return cache[productId]
+  const cached = cache[productId]
+  if (cached) return cached
   const data: Product = await fetch(`${apiEndpoint}${productId}`, {
     headers: { 'accept-language': lang }
   }).then((res) => res.json())
@@ -106,8 +107,8 @@ export const replaceDeliveryScheduleInContent = async (
   target: HTMLDivElement | HTMLParagraphElement | HTMLSpanElement
 ) => {
   const data = await fetchData(productId)
-  const index = Number(target.dataset.index ?? 0)
-  const short = !!target.dataset.short
+  const index = Number(target.dataset['index'] ?? 0)
+  const short = !!target.dataset['short']
   target.innerText =
     (short
       ? data.rule.schedule.texts[index]?.replace(/(\d{4}|年)/g, '')
@@ -129,5 +130,5 @@ export const latest = (
         `${b.year}${String(b.month).padStart(2, '0')}${b.termIndex}`
       )
       return l > r ? -1 : l < r ? 1 : 0
-    })[0]
+    })[0]!
 }

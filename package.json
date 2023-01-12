@@ -5,13 +5,13 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "format": "prettier --write 'src/**/*.ts'",
-    "build": "tsc && vite build"
+    "build": "vite build"
   },
   "devDependencies": {
-    "@types/node": "^18.11.10",
-    "prettier": "^2.8.0",
-    "typescript": "^4.9.3",
-    "vite": "^3.2.4"
+    "@tsconfig/strictest": "^1.0.2",
+    "@types/node": "^18.11.18",
+    "prettier": "^2.8.2",
+    "typescript": "^4.9.4",
+    "vite": "^4.0.4"
   }
 }
