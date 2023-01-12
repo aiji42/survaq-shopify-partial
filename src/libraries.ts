@@ -65,7 +65,7 @@ export const createSKUSelects = async (
     if (!propertiesDelivery) throw new Error()
     propertiesDelivery.value = `${schedule.text}(${schedule.subText})`
 
-    if (data.rule.schedule.text !== schedule.text) {
+    if (data.rule.schedule.text !== schedule.text && lang === 'ja') {
       messageArea.innerHTML = `&quot;配送予定：${schedule.text.replace(
         /(\d{4}|年)/g,
         ''
