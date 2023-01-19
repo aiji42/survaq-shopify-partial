@@ -1,1 +1,1 @@
-export {}
+export * from './piercing-fragment-outlet'
