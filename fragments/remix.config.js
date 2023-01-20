@@ -8,6 +8,8 @@ module.exports = {
   // assetsBuildDirectory: "public/build",
   // serverBuildPath: "build/index.js",
   // publicPath: "/build/",
+  devServerPort: 8001,
+  publicPath: '/_fragments/build/',
   future: {
     unstable_vanillaExtract: true
   }

@@ -25,12 +25,18 @@ export default {
     env: Env,
     ctx: ExecutionContext
   ): Promise<Response> {
-    const newUrl = new URL(request.url)
-    newUrl.host = 'example.com'
-    newUrl.protocol = 'https://'
-    newUrl.port = '443'
+    const url = new URL(request.url)
+    if (url.pathname.startsWith('/_fragments/')) {
+      url.host = 'localhost'
+      url.protocol = 'http:'
+      url.port = '3001'
+      url.pathname = url.pathname.replace(/^\/_fragments\//, '/')
+    } else {
+      url.host = 'localhost'
+      url.protocol = 'http:'
+      url.port = '3002'
+    }
 
-    const newRequest = new Request(newUrl, request)
-    return fetch(newRequest)
+    return fetch(new Request(url, request))
   }
 }

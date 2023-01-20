@@ -72,7 +72,7 @@ export class PiercingFragmentOutlet extends HTMLElement {
   }
 
   private getFragmentUrl(fragmentId: string): string {
-    return `http://127.0.0.1:8787/fundings/${fragmentId}`
+    return `/_fragments/${fragmentId}`
   }
 
   private async streamFragmentIntoOutlet(

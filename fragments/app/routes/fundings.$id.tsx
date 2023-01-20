@@ -1,7 +1,6 @@
 import { DataFunctionArgs, json } from '@remix-run/cloudflare'
-import { useLoaderData, Await } from '@remix-run/react'
+import { useLoaderData } from '@remix-run/react'
 import { Fundings } from '~/components/fundings'
-import { Suspense } from 'react'
 
 const fetchFundings = async (
   id: string

@@ -3,7 +3,7 @@ export default function Index() {
     <div style={{ fontFamily: 'system-ui, sans-serif', lineHeight: '1.4' }}>
       <h1>Welcome to Remix</h1>
       {/* @ts-ignore */}
-      <piercing-fragment-outlet fragment-id="6580009205965" />
+      <piercing-fragment-outlet fragment-id="fundings/6580009205965" />
       <ul>
         <li>
           <a

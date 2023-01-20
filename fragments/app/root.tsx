@@ -30,7 +30,7 @@ export default function App() {
       <body>
         <Outlet />
         {includeScripts ? <Scripts /> : null}
-        <LiveReload />
+        <LiveReload port={8001} />
       </body>
     </html>
   )

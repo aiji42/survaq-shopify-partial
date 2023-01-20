@@ -4,6 +4,9 @@
   "private": true,
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "dev": "wrangler dev --local"
+  },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20221111.1",
     "typescript": "^4.9.4",
