@@ -1,4 +1,5 @@
 import { concatenateStreams, wrapStreamInText } from './stream-utilities'
+import { piercingFragmentHostInlineScript } from './index'
 
 export interface FragmentConfig<Env> {
   fragmentId: string
@@ -101,9 +102,9 @@ export class PiercingGateway<Env> {
       ?.includes('text/html')
     if (!requestIsForHtml) return null
 
-    const indexBodyResponse = this.forwardFetchToBaseApp(request).then(
-      (response) => response.text()
-    )
+    const indexBodyResponse = this.fetchBaseIndexHtml(
+      this.forwardToBaseAppRequest(request)
+    ).then((response) => response.text())
     const fragmentStreamOrNullPromises = Array.from(
       this.fragmentConfigs.values()
     ).map(async (fragmentConfig) => {
@@ -134,12 +135,34 @@ export class PiercingGateway<Env> {
   }
 
   private forwardFetchToBaseApp(request: Request) {
+    return fetch(this.forwardToBaseAppRequest(request))
+  }
+
+  private forwardToBaseAppRequest(request: Request) {
     const url = new URL(request.url)
     url.host = 'localhost'
     url.protocol = 'http:'
     url.port = '3002'
 
-    return fetch(new Request(url, request))
+    return new Request(url, request)
+  }
+
+  private async fetchBaseIndexHtml(request: Request) {
+    const response = await fetch(request)
+
+    const requestIsForHtml = request.headers
+      .get('Accept')
+      ?.includes('text/html')
+    if (requestIsForHtml) {
+      let indexBody = (await response.text()).replace(
+        '</head>',
+        `${piercingFragmentHostInlineScript}\n` + '</head>'
+      )
+
+      return new Response(indexBody, response)
+    }
+
+    return response
   }
 
   private async fetchSSRedFragment(

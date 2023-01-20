@@ -13,8 +13,6 @@ const fetchFundings = async (
     (res) => res.json()
   )
 
-  console.log(data)
-
   const remainDays = Math.ceil(
     (new Date(data.foundation.closeOn).getTime() - new Date().getTime()) /
       86400000
