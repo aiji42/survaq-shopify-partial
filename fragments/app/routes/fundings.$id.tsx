@@ -9,9 +9,11 @@ const fetchFundings = async (
   supporter: string
   status: string
 }> => {
-  const data: any = await fetch(
-    `https://survaq-api-production.aiji422990.workers.dev/products/${id}`
-  ).then((res) => res.json())
+  const data: any = await fetch(`https://api.survaq.com/products/${id}`).then(
+    (res) => res.json()
+  )
+
+  console.log(data)
 
   const remainDays = Math.ceil(
     (new Date(data.foundation.closeOn).getTime() - new Date().getTime()) /

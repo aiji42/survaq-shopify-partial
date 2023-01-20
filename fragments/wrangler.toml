@@ -1,12 +1,7 @@
-name = "remix-cloudflare-workers"
-
-workers_dev = true
+name = "survaq-shopify-fragments"
 main = "./build/index.js"
-# https://developers.cloudflare.com/workers/platform/compatibility-dates
-compatibility_date = "2022-04-05"
+compatibility_date = "2023-01-11"
 
 [site]
   bucket = "./public"
 
-[build]
-  command = "npm run build"

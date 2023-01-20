@@ -1,3 +1,7 @@
 name = "survaq-shopify-gateway"
 main = "src/index.ts"
 compatibility_date = "2023-01-19"
+
+[[services]]
+binding = "fragment-service"
+service = "survaq-shopify-fragments"
