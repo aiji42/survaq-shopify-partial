@@ -1,7 +1,6 @@
 import type { Product, Variant } from './product'
 
-const apiEndpoint =
-  'https://survaq-api-production.aiji422990.workers.dev/products/'
+const apiEndpoint = 'https://api.survaq.com/products/'
 
 let cache: Record<string, Product> = {}
 
