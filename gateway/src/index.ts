@@ -9,6 +9,10 @@ gateway.registerFragment({
     :not(piercing-fragment-outlet) > piercing-fragment-host {
       display: none;
     }
+    piercing-fragment-outlet {
+      display: block;
+      min-height: 261px;
+    }
   `,
   shouldBeIncluded: (request, env, ctx) =>
     new URL(request.url).pathname.startsWith('/product/'),
