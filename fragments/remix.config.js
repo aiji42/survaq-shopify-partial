@@ -9,7 +9,7 @@ module.exports = {
   // serverBuildPath: "build/index.js",
   // publicPath: "/build/",
   devServerPort: 8001,
-  publicPath: '/_fragments/build/',
+  publicPath: 'http://localhost:3001/build/',
   future: {
     unstable_vanillaExtract: true
   }

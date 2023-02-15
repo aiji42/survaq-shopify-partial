@@ -100,3 +100,9 @@ export class PiercingFragmentHost extends HTMLElement {
     })
   }
 }
+
+export function registerPiercingFragmentHost() {
+  if (!window.customElements.get('piercing-fragment-host')) {
+    window.customElements.define('piercing-fragment-host', PiercingFragmentHost)
+  }
+}

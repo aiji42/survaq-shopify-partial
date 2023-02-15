@@ -8,6 +8,9 @@
     "build": "vite build",
     "dev": "lerna run dev --no-bail --parallel"
   },
+  "dependencies": {
+    "piercing-library": "*"
+  },
   "devDependencies": {
     "@lerna-lite/cli": "^1.14.1",
     "@lerna-lite/run": "^1.14.1",
@@ -19,7 +22,6 @@
   },
   "workspaces": [
     "piercing-library",
-    "host",
     "gateway",
     "fragments"
   ]

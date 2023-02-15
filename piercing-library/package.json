@@ -3,22 +3,13 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "scripts": {
-    "prebuild": "rm -rf ./dist",
-    "build": "npm run build:host-inline-script; npm run build:lib",
-    "build:host-inline-script": "tsc && vite build -c ./piercing-fragment-host.vite.config.ts",
-    "build:lib": "tsc && vite build"
-  },
+  "main": "./src/index.ts",
   "dependencies": {
     "writable-dom": "^1.0.2"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^3.14.1",
     "@types/node": "^18.7.15",
-    "typescript": "^4.6.4",
-    "vite": "^4.0.4",
-    "vite-plugin-dts": "^1.7.1"
+    "typescript": "^4.6.4"
   }
 }

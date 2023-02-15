@@ -5,20 +5,18 @@ export interface Env {}
 const gateway = new PiercingGateway<Env>()
 gateway.registerFragment({
   fragmentId: 'fundings',
+  origin: 'http://127.0.0.1:3001',
   prePiercingStyles: `
     :not(piercing-fragment-outlet) > piercing-fragment-host {
       display: none;
     }
-    piercing-fragment-outlet {
-      display: block;
-      min-height: 261px;
-    }
   `,
-  shouldBeIncluded: (request, env, ctx) =>
-    new URL(request.url).pathname.startsWith('/product/'),
   transformRequest: (request) => {
+    const url = new URL(request.url)
+    url.pathname = '/fundings/6580009205965'
     return new Request(
-      new URL(request.url.replace(/\/product\//, '/fundings/')),
+      // new URL(request.url.replace(/\/product\//, '/fundings/')),
+      url,
       request
     )
   }
