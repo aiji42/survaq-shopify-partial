@@ -1,7 +1,6 @@
 import type { Product, Variant } from './product'
 
-const apiEndpoint = (id: string) =>
-  `${process.env.SURVAQ_API_ORIGIN}/products/${id}/supabase`
+const apiEndpoint = 'https://api.survaq.com/products/'
 
 let cache: Record<string, Product> = {}
 
@@ -10,7 +9,7 @@ const lang = document.documentElement.lang ?? 'ja'
 export const fetchData = async (productId: string): Promise<Product> => {
   const cached = cache[productId]
   if (cached) return cached
-  const data: Product = await fetch(apiEndpoint(productId), {
+  const data: Product = await fetch(`${apiEndpoint}${productId}`, {
     headers: { 'accept-language': lang }
   }).then((res) => res.json())
   cache[productId] = data
@@ -28,7 +27,7 @@ export const createDeliveryScheduleProperty = async (
   const div = document.createElement('div')
   const key = lang === 'en' ? 'Shipping' : '配送予定'
   const html = `
-<input name="properties[${key}]" type="hidden" value="${data.schedule.text}(${data.schedule.subText})" id="${propertiesDeliveryId}" />
+<input name="properties[${key}]" type="hidden" value="${data.rule.schedule.text}(${data.rule.schedule.subText})" id="${propertiesDeliveryId}" />
 `
   div.innerHTML = html
   target.appendChild(div)
@@ -55,7 +54,7 @@ export const createSKUSelects = async (
     const values = selects.map((el) => el.value)
     const selectedSkus = variant.skus.filter((sku) => values.includes(sku.name))
     const schedule = latest([
-      data.schedule,
+      data.rule.schedule,
       variant.schedule,
       ...selectedSkus.map(({ schedule }) => schedule)
     ])
@@ -66,7 +65,7 @@ export const createSKUSelects = async (
     if (!propertiesDelivery) throw new Error()
     propertiesDelivery.value = `${schedule.text}(${schedule.subText})`
 
-    if (data.schedule.text !== schedule.text && lang === 'ja') {
+    if (data.rule.schedule.text !== schedule.text && lang === 'ja') {
       messageArea.innerHTML = `&quot;配送予定：${schedule.text.replace(
         /(\d{4}|年)/g,
         ''
@@ -79,8 +78,8 @@ export const createSKUSelects = async (
   Array.from({ length: variant.skuSelectable }).forEach((_, index) => {
     const p = document.createElement('p')
     p.classList.add('product-form__item')
-    const label = variant.skuLabel
-      ? variant.skuLabel.replace(/#/g, String(index + 1))
+    const label = data.skuLabel
+      ? data.skuLabel?.replace(/#/g, String(index + 1))
       : null
     if (label) p.innerHTML = `<label>${label}</label>`
     const select = document.createElement('select')
@@ -111,14 +110,14 @@ export const replaceDeliveryScheduleInContent = async (
   const short = !!target.dataset['short']
   target.innerText =
     (short
-      ? data.schedule.texts[index]?.replace(/(\d{4}|年)/g, '')
-      : data.schedule.texts[index]) ?? ''
+      ? data.rule.schedule.texts[index]?.replace(/(\d{4}|年)/g, '')
+      : data.rule.schedule.texts[index]) ?? ''
 }
 
 type DeliverySchedule = Exclude<Variant['skus'][number]['schedule'], null>
 
 export const latest = (
-  schedules: Array<Product['schedule'] | DeliverySchedule | null>
+  schedules: Array<Product['rule']['schedule'] | DeliverySchedule | null>
 ): DeliverySchedule => {
   return schedules
     .filter((schedule): schedule is DeliverySchedule => !!schedule)

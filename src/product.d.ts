@@ -1,3 +1,10 @@
+export type Foundation = {
+  fieldId: string
+  totalPrice: number
+  closeOn: string
+  supporter: number
+}
+
 type Schedule = {
   year: number
   month: number
@@ -8,7 +15,18 @@ type Schedule = {
   subText: string
 }
 
+export type Rule = {
+  fieldId: string
+  customSchedules: Array<{
+    beginOn: string
+    endOn: string
+    deliverySchedule: string
+  }>
+  schedule: Schedule
+}
+
 export type Variant = {
+  fieldId: string
   variantId: string
   variantName: string
   skus: {
@@ -18,11 +36,15 @@ export type Variant = {
     schedule: Omit<Schedule, 'texts'> | null
   }[]
   skuSelectable: number
-  skuLabel: string | null
   schedule: Omit<Schedule, 'texts'> | null
 }
 
 export type Product = {
-  variants: Array<Variant>
-  schedule: Schedule
+  id: string
+  productCode: string
+  productName: string
+  variants?: Array<Variant>
+  skuLabel?: string
+  foundation: Foundation
+  rule: Rule
 }
