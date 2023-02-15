@@ -1,7 +1,0 @@
-name = "survaq-shopify-fragments"
-main = "./build/index.js"
-compatibility_date = "2023-01-11"
-
-[site]
-  bucket = "./public"
-
