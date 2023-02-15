@@ -1,13 +1,20 @@
 import * as path from 'path'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 
-export default defineConfig({
-  build: {
-    lib: {
-      entry: path.resolve(__dirname, 'src/index.ts'),
-      name: 'survaqShopify',
-      fileName: (format) => `bundle.${format}.js`
+export default defineConfig(({ mode }) => {
+  const { SURVAQ_API_ORIGIN } = loadEnv(mode, process.cwd(), '')
+
+  return {
+    build: {
+      lib: {
+        entry: path.resolve(__dirname, 'src/index.ts'),
+        name: 'survaqShopify',
+        fileName: (format) => `bundle.${format}.js`
+      },
+      rollupOptions: {}
     },
-    rollupOptions: {}
+    define: {
+      'process.env.SURVAQ_API_ORIGIN': JSON.stringify(SURVAQ_API_ORIGIN)
+    }
   }
 })
