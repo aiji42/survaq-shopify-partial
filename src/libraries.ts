@@ -19,6 +19,7 @@ export const fetchData = async (productId: string): Promise<Product> => {
 }
 
 const propertiesDeliveryId = 'propertiesDelivery'
+const propertiesSkuCodesId = 'propertiesSkuCodes'
 
 export const createDeliveryScheduleProperty = async (
   productId: string,
@@ -29,6 +30,33 @@ export const createDeliveryScheduleProperty = async (
   const key = lang === 'en' ? 'Shipping' : '配送予定'
   const html = `
 <input name="properties[${key}]" type="hidden" value="${data.schedule.text}(${data.schedule.subText})" id="${propertiesDeliveryId}" />
+`
+  div.innerHTML = html
+  target.appendChild(div)
+
+  return div
+}
+
+export const createSkuCodesProperty = async (
+  productId: string,
+  variantId: string,
+  target: HTMLElement
+) => {
+  const data = await fetchData(productId)
+  const div = document.createElement('div')
+  const variant = data.variants.find((v) => v.variantId === variantId)!
+
+  const values =
+    variant.skuSelectable === 0
+      ? variant.skus.map(({ code }) => code)
+      : Array.from({ length: variant.skuSelectable }).map(
+          () => variant.skus[0]?.code ?? ''
+        )
+
+  const html = `
+<input name="properties[_skus]" type="hidden" value="${JSON.stringify(
+    values
+  )})" id="${propertiesSkuCodesId}" />
 `
   div.innerHTML = html
   target.appendChild(div)
@@ -76,6 +104,24 @@ export const createSKUSelects = async (
     }
   }
 
+  const updateSelectedSkuCodes = () => {
+    const selects = Array.from(
+      document.querySelectorAll<HTMLInputElement>(`.${skusClassName}`)
+    )
+    const selectedSkuCodes =
+      selects.length === 0
+        ? variant.skus.map(({ code }) => code)
+        : selects.map(
+            (el) => variant.skus.find(({ name }) => name === el.value)!.code
+          )
+
+    const propertiesSkuCodes = document.querySelector<HTMLInputElement>(
+      `#${propertiesSkuCodesId}`
+    )
+    if (!propertiesSkuCodes) throw new Error()
+    propertiesSkuCodes.value = JSON.stringify(selectedSkuCodes)
+  }
+
   Array.from({ length: variant.skuSelectable }).forEach((_, index) => {
     const p = document.createElement('p')
     p.classList.add('product-form__item')
@@ -91,7 +137,10 @@ export const createSKUSelects = async (
       .join('')
     p.appendChild(select)
 
-    select.addEventListener('change', updateDeliverySchedule)
+    select.addEventListener('change', () => {
+      updateDeliverySchedule()
+      updateSelectedSkuCodes()
+    })
 
     target.appendChild(p)
 
@@ -99,6 +148,7 @@ export const createSKUSelects = async (
   })
 
   updateDeliverySchedule()
+  updateSelectedSkuCodes()
   target.appendChild(messageArea)
 }
 

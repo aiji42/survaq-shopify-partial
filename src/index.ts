@@ -2,7 +2,8 @@ import {
   fetchData,
   createDeliveryScheduleProperty,
   createSKUSelects,
-  replaceDeliveryScheduleInContent
+  replaceDeliveryScheduleInContent,
+  createSkuCodesProperty
 } from './libraries'
 
 const main = (productId: string, initValiantId: string) => {
@@ -10,8 +11,10 @@ const main = (productId: string, initValiantId: string) => {
 
   fetchData(productId).then(() => {
     const propertiesTarget = document.getElementById('additionalProperties')
-    if (propertiesTarget)
+    if (propertiesTarget) {
       createDeliveryScheduleProperty(productId, propertiesTarget)
+      createSkuCodesProperty(productId, initValiantId, propertiesTarget)
+    }
 
     const selectsTarget = document.getElementById('variationSelectors')
     if (selectsTarget) {
