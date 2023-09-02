@@ -1,4 +1,4 @@
-import type { Product, Variant } from './product'
+import type { Product, Schedule, SKU } from './product'
 
 const apiEndpoint = (id: string) =>
   `${process.env.SURVAQ_API_ORIGIN}/products/${id}/supabase`
@@ -28,10 +28,9 @@ export const createDeliveryScheduleProperty = async (
   const data = await fetchData(productId)
   const div = document.createElement('div')
   const key = lang === 'en' ? 'Shipping' : '配送予定'
-  const html = `
+  div.innerHTML = `
 <input name="properties[${key}]" type="hidden" value="${data.schedule.text}(${data.schedule.subText})" id="${propertiesDeliveryId}" />
 `
-  div.innerHTML = html
   target.appendChild(div)
 
   return div
@@ -46,19 +45,18 @@ export const createSkuCodesProperty = async (
   const div = document.createElement('div')
   const variant = data.variants.find((v) => v.variantId === variantId)!
 
-  const values =
-    variant.skuSelectable === 0
-      ? variant.skus.map(({ code }) => code)
-      : Array.from({ length: variant.skuSelectable }).map(
-          () => variant.skus[0]?.code ?? ''
-        )
+  const values = [
+    ...variant.baseSKUs.map(({ code }) => code),
+    ...Array.from({ length: variant.skuSelectable }).map(
+      () => variant.selectableSKUs[0]?.code ?? ''
+    )
+  ]
 
-  const html = `
+  div.innerHTML = `
 <input name="properties[_skus]" type="hidden" value="${JSON.stringify(
     values
   )})" id="${propertiesSkuCodesId}" />
 `
-  div.innerHTML = html
   target.appendChild(div)
 
   return div
@@ -81,10 +79,12 @@ export const createSKUSelects = async (
       document.querySelectorAll<HTMLInputElement>(`.${skusClassName}`)
     )
     const values = selects.map((el) => el.value)
-    const selectedSkus = variant.skus.filter((sku) => values.includes(sku.name))
+    const selectedSkus = variant.selectableSKUs.filter((sku) =>
+      values.includes(sku.name)
+    )
     const schedule = latest([
       data.schedule,
-      variant.schedule,
+      variant.defaultSchedule,
       ...selectedSkus.map(({ schedule }) => schedule)
     ])
 
@@ -108,12 +108,13 @@ export const createSKUSelects = async (
     const selects = Array.from(
       document.querySelectorAll<HTMLInputElement>(`.${skusClassName}`)
     )
-    const selectedSkuCodes =
-      selects.length === 0
-        ? variant.skus.map(({ code }) => code)
-        : selects.map(
-            (el) => variant.skus.find(({ name }) => name === el.value)!.code
-          )
+    const selectedSkuCodes = [
+      ...variant.baseSKUs.map(({ code }) => code),
+      ...selects.map(
+        (el) =>
+          variant.selectableSKUs.find(({ name }) => name === el.value)!.code
+      )
+    ]
 
     const propertiesSkuCodes = document.querySelector<HTMLInputElement>(
       `#${propertiesSkuCodesId}`
@@ -132,7 +133,7 @@ export const createSKUSelects = async (
     const select = document.createElement('select')
     select.classList.add('product-form__input', skusClassName)
     select.name = `properties[${label ?? `商品${index + 1}`}]`
-    select.innerHTML = variant.skus
+    select.innerHTML = variant.selectableSKUs
       .map((sku) => `<option value="${sku.name}">${sku.name}</option>`)
       .join('')
     p.appendChild(select)
@@ -165,10 +166,10 @@ export const replaceDeliveryScheduleInContent = async (
       : data.schedule.texts[index]) ?? ''
 }
 
-type DeliverySchedule = Exclude<Variant['skus'][number]['schedule'], null>
+type DeliverySchedule = Exclude<SKU['schedule'], null>
 
 export const latest = (
-  schedules: Array<Product['schedule'] | DeliverySchedule | null>
+  schedules: Array<Schedule | DeliverySchedule | null>
 ): DeliverySchedule => {
   return schedules
     .filter((schedule): schedule is DeliverySchedule => !!schedule)
