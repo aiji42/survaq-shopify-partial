@@ -18,23 +18,7 @@ export const fetchData = async (productId: string): Promise<Product> => {
   return data
 }
 
-const propertiesDeliveryId = 'propertiesDelivery'
 const propertiesSkuCodesId = 'propertiesSkuCodes'
-
-export const createDeliveryScheduleProperty = async (
-  productId: string,
-  target: HTMLElement
-): Promise<HTMLDivElement> => {
-  const data = await fetchData(productId)
-  const div = document.createElement('div')
-  const key = lang === 'en' ? 'Shipping' : '配送予定'
-  div.innerHTML = `
-<input name="properties[${key}]" type="hidden" value="${data.schedule.text}(${data.schedule.subText})" id="${propertiesDeliveryId}" />
-`
-  target.appendChild(div)
-
-  return div
-}
 
 export const createSkuCodesProperty = async (
   productId: string,
@@ -87,13 +71,7 @@ export const createSKUSelects = async (
       variant.defaultSchedule,
       ...selectedSkus.map(({ schedule }) => schedule)
     ])
-
-    const propertiesDelivery = document.querySelector<HTMLInputElement>(
-      `#${propertiesDeliveryId}`
-    )
-    if (!propertiesDelivery) throw new Error()
-    propertiesDelivery.value = `${schedule.text}(${schedule.subText})`
-
+    
     if (data.schedule.text !== schedule.text && lang === 'ja') {
       messageArea.innerHTML = `&quot;配送予定：${schedule.text.replace(
         /(\d{4}|年)/g,
