@@ -1,7 +1,7 @@
 import type { Product, Schedule, SKU } from './product'
 
 const apiEndpoint = (id: string) =>
-  `${process.env.SURVAQ_API_ORIGIN}/products/${id}/supabase`
+  `${process.env.SURVAQ_API_ORIGIN}/products/${id}`
 
 let cache: Record<string, Product> = {}
 
