@@ -4,28 +4,30 @@ export type Schedule = {
   term: 'early' | 'middle' | 'late'
   termIndex: number
   text: string
-  texts: string[] | never
   subText: string
 }
 
 export type SKU = {
   code: string
   name: string
-  subName: string
-  schedule: Omit<Schedule, 'texts'> | null
+  displayName: string
+  schedule: Schedule | null
+  sortNumber: number
+  skipDeliveryCalc: boolean
 }
 
 export type Variant = {
   variantId: string
   variantName: string
-  skuSelectable: number
-  skuLabel: string | null
-  baseSKUs: SKU[]
-  selectableSKUs: SKU[]
-  defaultSchedule: Omit<Schedule, 'texts'> | null
+  skus: string[],
+  skuGroups: { label: string; skuGroupCode: string }[]
+  defaultSchedule: Schedule | null
 }
 
 export type Product = {
+  productName: string
   variants: Array<Variant>
+  skus: Record<string, SKU>
+  skuGroups: Record<string, string[]>
   schedule: Schedule
 }

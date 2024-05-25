@@ -20,6 +20,11 @@ export const fetchData = async (productId: string): Promise<Product> => {
 
 const propertiesSkuCodesId = 'propertiesSkuCodes'
 
+const getSKUsByGroupCode = (code: string, product: Product): SKU[] => {
+  const skuCodes = product.skuGroups[code]!
+  return skuCodes.map((code) => product.skus[code]!)
+}
+
 export const createSkuCodesProperty = async (
   productId: string,
   variantId: string,
@@ -30,10 +35,8 @@ export const createSkuCodesProperty = async (
   const variant = data.variants.find((v) => v.variantId === variantId)!
 
   const values = [
-    ...variant.baseSKUs.map(({ code }) => code),
-    ...Array.from({ length: variant.skuSelectable }).map(
-      () => variant.selectableSKUs[0]?.code ?? ''
-    )
+    ...variant.skus,
+    ...variant.skuGroups.map(({ skuGroupCode }) => getSKUsByGroupCode(skuGroupCode, data)[0]?.code ?? '')
   ]
 
   div.innerHTML = `
@@ -63,9 +66,7 @@ export const createSKUSelects = async (
       document.querySelectorAll<HTMLInputElement>(`.${skusClassName}`)
     )
     const values = selects.map((el) => el.value)
-    const selectedSkus = variant.selectableSKUs.filter((sku) =>
-      values.includes(sku.name)
-    )
+    const selectedSkus = values.flatMap((value) => data.skus[value] ?? [])
     const schedule = latest([
       data.schedule,
       variant.defaultSchedule,
@@ -87,11 +88,8 @@ export const createSKUSelects = async (
       document.querySelectorAll<HTMLInputElement>(`.${skusClassName}`)
     )
     const selectedSkuCodes = [
-      ...variant.baseSKUs.map(({ code }) => code),
-      ...selects.map(
-        (el) =>
-          variant.selectableSKUs.find(({ name }) => name === el.value)!.code
-      )
+      ...variant.skus,
+      ...selects.flatMap((el) => data.skus[el.value]?.code ?? [])
     ]
 
     const propertiesSkuCodes = document.querySelector<HTMLInputElement>(
@@ -101,18 +99,15 @@ export const createSKUSelects = async (
     propertiesSkuCodes.value = JSON.stringify(selectedSkuCodes)
   }
 
-  Array.from({ length: variant.skuSelectable }).forEach((_, index) => {
+  variant.skuGroups.forEach(({ label, skuGroupCode }, index) => {
     const p = document.createElement('p')
     p.classList.add('product-form__item')
-    const label = variant.skuLabel
-      ? variant.skuLabel.replace(/#/g, String(index + 1))
-      : null
     if (label) p.innerHTML = `<label>${label}</label>`
     const select = document.createElement('select')
     select.classList.add('product-form__input', skusClassName)
     select.name = `properties[${label ?? `商品${index + 1}`}]`
-    select.innerHTML = variant.selectableSKUs
-      .map((sku) => `<option value="${sku.name}">${sku.name}</option>`)
+    select.innerHTML = getSKUsByGroupCode(skuGroupCode, data)
+      .map((sku) => `<option value="${sku.code}">${sku.name}</option>`)
       .join('')
     p.appendChild(select)
 
@@ -136,12 +131,11 @@ export const replaceDeliveryScheduleInContent = async (
   target: HTMLDivElement | HTMLParagraphElement | HTMLSpanElement
 ) => {
   const data = await fetchData(productId)
-  const index = Number(target.dataset['index'] ?? 0)
   const short = !!target.dataset['short']
   target.innerText =
     (short
-      ? data.schedule.texts[index]?.replace(/(\d{4}|年)/g, '')
-      : data.schedule.texts[index]) ?? ''
+      ? data.schedule.text.replace(/(\d{4}|年)/g, '')
+      : data.schedule.text)
 }
 
 type DeliverySchedule = Exclude<SKU['schedule'], null>
