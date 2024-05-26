@@ -1,36 +1,26 @@
-import type { Product, Schedule, SKU } from './product'
+import type {Product, Schedule, SKU} from './product'
 
 const apiEndpoint = (id: string) =>
   `${process.env.SURVAQ_API_ORIGIN}/products/${id}`
 
-let cache: Record<string, Product> = {}
-
 const lang = document.documentElement.lang ?? 'ja'
 
 export const fetchData = async (productId: string): Promise<Product> => {
-  const cached = cache[productId]
-  if (cached) return cached
-  const data: Product = await fetch(apiEndpoint(productId), {
-    headers: { 'accept-language': lang }
+  return await fetch(apiEndpoint(productId), {
+    headers: {'accept-language': lang}
   }).then((res) => res.json())
-  cache[productId] = data
-
-  return data
 }
-
-const propertiesSkuCodesId = 'propertiesSkuCodes'
 
 const getSKUsByGroupCode = (code: string, product: Product): SKU[] => {
   const skuCodes = product.skuGroups[code]!
   return skuCodes.map((code) => product.skus[code]!)
 }
 
-export const createSkuCodesProperty = async (
-  productId: string,
+export const createSkuCodesProperty = (
+  data: Product,
   variantId: string,
   target: HTMLElement
 ) => {
-  const data = await fetchData(productId)
   const div = document.createElement('div')
   const variant = data.variants.find((v) => v.variantId === variantId)!
 
@@ -38,23 +28,23 @@ export const createSkuCodesProperty = async (
     ...variant.skus,
     ...variant.skuGroups.map(({ skuGroupCode }) => getSKUsByGroupCode(skuGroupCode, data)[0]?.code ?? '')
   ]
+  const input = document.createElement('input')
+  input.type = 'hidden'
+  input.name = 'properties[_skus]'
+  input.value = JSON.stringify(values)
+  div.appendChild(input)
 
-  div.innerHTML = `
-<input name="properties[_skus]" type="hidden" value="${JSON.stringify(
-    values
-  )})" id="${propertiesSkuCodesId}" />
-`
   target.appendChild(div)
 
-  return div
+  return input
 }
 
-export const createSKUSelects = async (
-  productId: string,
+export const createSKUSelects = (
+  data: Product,
   variantId: string,
+  skusInput: HTMLInputElement | null,
   target: HTMLElement
 ) => {
-  const data = await fetchData(productId)
   const variant = data.variants?.find(({ variantId: v }) => v === variantId)
   if (!variant) return
   const messageArea = document.createElement('p')
@@ -91,29 +81,31 @@ export const createSKUSelects = async (
       ...variant.skus,
       ...selects.flatMap((el) => data.skus[el.value]?.code ?? [])
     ]
-
-    const propertiesSkuCodes = document.querySelector<HTMLInputElement>(
-      `#${propertiesSkuCodesId}`
-    )
-    if (!propertiesSkuCodes) throw new Error()
-    propertiesSkuCodes.value = JSON.stringify(selectedSkuCodes)
+    
+    if (skusInput) skusInput.value = JSON.stringify(selectedSkuCodes)
   }
 
-  variant.skuGroups.forEach(({ label, skuGroupCode }, index) => {
+  variant.skuGroups.forEach(({ label, skuGroupCode }) => {
     const p = document.createElement('p')
     p.classList.add('product-form__item')
     if (label) p.innerHTML = `<label>${label}</label>`
     const select = document.createElement('select')
     select.classList.add('product-form__input', skusClassName)
-    select.name = `properties[${label ?? `商品${index + 1}`}]`
     select.innerHTML = getSKUsByGroupCode(skuGroupCode, data)
       .map((sku) => `<option value="${sku.code}">${sku.name}</option>`)
       .join('')
     p.appendChild(select)
 
+    const hidden = document.createElement('input')
+    hidden.type = 'hidden'
+    hidden.name = `properties[${label}]`
+    hidden.value = data.skus[select.value]?.name ?? ''
+    p.appendChild(hidden)
+
     select.addEventListener('change', () => {
       updateDeliverySchedule()
       updateSelectedSkuCodes()
+      hidden.value = data.skus[select.value]?.name ?? ''
     })
 
     target.appendChild(p)
@@ -126,11 +118,10 @@ export const createSKUSelects = async (
   target.appendChild(messageArea)
 }
 
-export const replaceDeliveryScheduleInContent = async (
-  productId: string,
+export const replaceDeliveryScheduleInContent = (
+  data: Product,
   target: HTMLDivElement | HTMLParagraphElement | HTMLSpanElement
 ) => {
-  const data = await fetchData(productId)
   const short = !!target.dataset['short']
   target.innerText =
     (short

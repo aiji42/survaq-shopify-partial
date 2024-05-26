@@ -8,13 +8,14 @@ import {
 const main = (productId: string, initValiantId: string) => {
   let currentValiantId: string = initValiantId
 
-  fetchData(productId).then(() => {
+  fetchData(productId).then((data) => {
     const propertiesTarget = document.getElementById('additionalProperties')
-    if (propertiesTarget) createSkuCodesProperty(productId, initValiantId, propertiesTarget)
+    let skuCodesInput: HTMLInputElement | null = null
+    if (propertiesTarget) skuCodesInput = createSkuCodesProperty(data, initValiantId, propertiesTarget)
 
     const selectsTarget = document.getElementById('variationSelectors')
     if (selectsTarget) {
-      createSKUSelects(productId, currentValiantId, selectsTarget)
+      createSKUSelects(data, currentValiantId, skuCodesInput, selectsTarget)
 
       document.addEventListener(
         'change',
@@ -25,7 +26,7 @@ const main = (productId: string, initValiantId: string) => {
             return
           currentValiantId = window.ShopifyAnalytics.meta.selectedVariantId
           selectsTarget.innerHTML = ''
-          createSKUSelects(productId, currentValiantId, selectsTarget)
+          createSKUSelects(data, currentValiantId, skuCodesInput, selectsTarget)
         },
         false
       )
@@ -34,7 +35,7 @@ const main = (productId: string, initValiantId: string) => {
     Array.from(
       document.querySelectorAll<HTMLSpanElement>('.delivery-schedule')
     ).forEach((t) => {
-      replaceDeliveryScheduleInContent(productId, t)
+      replaceDeliveryScheduleInContent(data, t)
     })
   })
 }

@@ -25,6 +25,7 @@ export type Variant = {
 }
 
 export type Product = {
+  productId: string
   productName: string
   variants: Array<Variant>
   skus: Record<string, SKU>
