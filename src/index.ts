@@ -40,4 +40,14 @@ const main = (productId: string, initValiantId: string) => {
   })
 }
 
+fetch('https://api.survaq.com/webhook/bundle-js-usage', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    referrer: window.location.href
+  })
+})
+
 window.customScriptSurvaq = main
