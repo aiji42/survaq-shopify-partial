@@ -44,8 +44,9 @@ const main = (productId: string, initValiantId: string) => {
   })
 }
 
+const denyHosts = ['eber888.com']
 const url = new URL(window.location.href)
-if (!['eber888.com'].includes(url.hostname)) {
+if (!denyHosts.includes(url.hostname)) {
   fetch('https://api.survaq.com/webhook/bundle-js-usage', {
     method: 'POST',
     headers: {
@@ -54,7 +55,6 @@ if (!['eber888.com'].includes(url.hostname)) {
     body: JSON.stringify({
       referrer: window.location.href
     })
-  }) 
+  })
+  window.customScriptSurvaq = main
 }
-
-window.customScriptSurvaq = main
