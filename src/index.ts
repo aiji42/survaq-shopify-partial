@@ -6,9 +6,9 @@ import {
 } from './libraries'
 
 const main = (productId: string, initValiantId: string) => {
-  if (!window.location.href.includes('survaq')) {
-    alert('許可されていない呼び出しです。')
-  }
+  // if (!window.location.href.includes('survaq')) {
+  //   alert('許可されていない呼び出しです。')
+  // }
   
   let currentValiantId: string = initValiantId
 
